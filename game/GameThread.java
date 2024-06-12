@@ -9,6 +9,7 @@ extends Thread{
 
     private List<TickEventListener> tickEventListeners;
     private Board board;
+    private AutoslalomTableController autoslalomTableController;
 
     // SINGLETON
     private static GameThread instance;
@@ -28,7 +29,7 @@ extends Thread{
         super.run();
         while(true){
             try {
-                Thread.sleep(500);
+                Thread.sleep(1500);
                 tick();
             } catch (InterruptedException e) {
                 System.out.println("KONIEC GRY");
@@ -50,6 +51,10 @@ extends Thread{
         this.board = board;
     }
 
+    public void setAutoslalomTableController(AutoslalomTableController autoslalomTableController) {
+        this.autoslalomTableController = autoslalomTableController;
+    }
+
     public void addTickEventListener(TickEventListener listener){
         tickEventListeners.add(listener);
     }
@@ -61,5 +66,6 @@ extends Thread{
         for(TickEventListener listener : tickEventListeners){
             listener.onTickEvent(tickEvent);
         }
+        autoslalomTableController.updateCells();
     }
 }

@@ -1,5 +1,6 @@
 package game;
 
+import javax.swing.table.TableModel;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -27,6 +28,7 @@ implements KeyListener{
     private int tickEventCounter;
     private ResetEventListener resetEventListener;
     private final GameThread gameThread;
+    private TableModel autoslalomTableModel;
 
 
     public Board() {
@@ -121,6 +123,10 @@ implements KeyListener{
 
     public void setResetEventListener(ResetEventListener resetEventListener) {
         this.resetEventListener = resetEventListener;
+    }
+
+    public int[] getBoard() {
+        return board;
     }
 
     public void detectCollision(){
