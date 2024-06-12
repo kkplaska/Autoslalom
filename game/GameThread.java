@@ -7,8 +7,10 @@ import java.util.List;
 public class GameThread
 extends Thread{
 
-    private List<TickEventListener> tickEventListeners;
+    private final List<TickEventListener> tickEventListeners;
+    private boolean state;
     private Board board;
+    private int difficulty = 0;
     private AutoslalomTableController autoslalomTableController;
 
     // SINGLETON
@@ -21,7 +23,9 @@ extends Thread{
     }
 
     private GameThread(){
-        tickEventListeners = new ArrayList<TickEventListener>();
+        this.tickEventListeners = new ArrayList<TickEventListener>();
+        this.state = true;
+        this.start();
     }
 
     @Override
@@ -29,17 +33,21 @@ extends Thread{
         super.run();
         while(true){
             try {
-                Thread.sleep(1500);
+                if(state){
+                    state = false;
+                    synchronized (this) { this.wait(); }
+                }
+                Thread.sleep(500 - (100L * difficulty));
                 tick();
             } catch (InterruptedException e) {
                 System.out.println("KONIEC GRY");
-                System.exit(0);
+                state = true;
             }
         }
     }
 
     public void setBoard(Board board) {
-        board.setResetEventListener(
+        board.addResetEventListener(
                 new ResetEventListener(){
                     @Override
                     public void onResetEvent(ResetEvent e) {
@@ -51,6 +59,14 @@ extends Thread{
         this.board = board;
     }
 
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
     public void setAutoslalomTableController(AutoslalomTableController autoslalomTableController) {
         this.autoslalomTableController = autoslalomTableController;
     }
@@ -58,9 +74,7 @@ extends Thread{
     public void addTickEventListener(TickEventListener listener){
         tickEventListeners.add(listener);
     }
-    public void removeTickEventListener(TickEventListener listener){
-        tickEventListeners.remove(listener);
-    }
+
     public void tick(){
         TickEvent tickEvent = new TickEvent(this);
         for(TickEventListener listener : tickEventListeners){

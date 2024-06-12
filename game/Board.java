@@ -1,75 +1,77 @@
 package game;
 
-import javax.swing.table.TableModel;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Board
 implements KeyListener{
-    // Samochód
-    // board[0] - samochód
-    // 100 = 4 <- lewy pas
-    // 010 = 2 <- środkowy pas
-    // 001 = 1 <- prawy pas
-
-    // Przeszkody
-    // board[1] - board[6]
+    // Samochód board[0]
+    // Przeszkody board[1] - board[6]
     // 0b110 = 6
     // 0b101 = 5
-    // 0b100 = 4
+    // 0b100 = 4 <- lewy pas
     // 0b011 = 3
-    // 0b010 = 2
-    // 0b001 = 1
+    // 0b010 = 2 <- środkowy pas
+    // 0b001 = 1 <- prawy pas
     // 0b000 = 0
 
     private final int[] board;
-    private SevenSegmentDigit[] sevenSegmentDigits;
-    private int obstacleCounter;
+    private int sevenSegmentNonZeros;
     private int tickEventCounter;
     private ResetEventListener resetEventListener;
+    private final List<ResetEventListener> resetEventListeners;
+    private PlusOneEventListener plusOneEventListener;
     private final GameThread gameThread;
-    private TableModel autoslalomTableModel;
 
 
     public Board() {
         this.board = new int[7];
         board[0] = 0b010; // Pozycja początkowa samochodu
 
-        this.sevenSegmentDigits = new SevenSegmentDigit[3];
+        this.resetEventListeners = new ArrayList<ResetEventListener>();
+
         this.gameThread = GameThread.getInstance();
         gameThread.setBoard(this);
-        obstacleCounter = 0;
         tickEventCounter = 0;
 
+
         gameThread.addTickEventListener(
-                new TickEventListener() {
-                    @Override
-                    public void onTickEvent(TickEvent e) {
-                        detectCollision();
-                        if(obstacleCounter < 1) {
-                            if(tickEventCounter % 4 == 0) {
-                                generateObstacleRow();
-                            } else {
-                                generateEmptyRow();
-                            }
-                        } else if(obstacleCounter < 10) {
-                            if(tickEventCounter % 3 == 0) {
-                                generateObstacleRow();
-                            } else {
-                                generateEmptyRow();
-                            }
-                        } else if (obstacleCounter < 100) {
-                            if(tickEventCounter % 2 == 0) {
-                                generateObstacleRow();
-                            } else {
-                                generateEmptyRow();
-                            }
-                        } else {
+                e -> {
+                    detectCollision();
+                    System.out.println(tickEventCounter);
+                    if(sevenSegmentNonZeros == 0) {
+                        if(tickEventCounter % 5 == 0) {
                             generateObstacleRow();
+                            tickEventCounter = 0;
+                        } else {
+                            generateEmptyRow();
                         }
-                        consoleTrack();
-                        tickEventCounter++;
+                    } else if(sevenSegmentNonZeros == 1) {
+                        if(tickEventCounter % 4 == 0) {
+                            generateObstacleRow();
+                            tickEventCounter = 0;
+                        } else {
+                            generateEmptyRow();
+                        }
+                    } else if (sevenSegmentNonZeros == 2) {
+                        if(tickEventCounter % 3 == 0) {
+                            generateObstacleRow();
+                            tickEventCounter = 0;
+                        } else {
+                            generateEmptyRow();
+                        }
+                    } else { // sevenSegmentNonZeros == 3
+                        if(tickEventCounter % 2 == 0) {
+                            generateObstacleRow();
+                            tickEventCounter = 0;
+                        } else {
+                            generateEmptyRow();
+                        }
                     }
+                    consoleTrack();
+                    tickEventCounter++;
                 }
         );
     }
@@ -94,7 +96,7 @@ implements KeyListener{
             case 0b001 -> sb.append("|  A|");
         }
         sb.append("\n");
-        System.out.println(sb.toString());
+        System.out.println(sb);
     }
 
     public void generateEmptyRow(){
@@ -121,8 +123,16 @@ implements KeyListener{
         }
     }
 
-    public void setResetEventListener(ResetEventListener resetEventListener) {
-        this.resetEventListener = resetEventListener;
+    public void sevenSegmentNonZerosPlus (){
+        this.sevenSegmentNonZeros++;
+    }
+
+    public void addResetEventListener(ResetEventListener resetEventListener) {
+        this.resetEventListeners.add(resetEventListener);
+    }
+
+    public void setPlusOneEventListener(PlusOneEventListener plusOneEventListener) {
+        this.plusOneEventListener = plusOneEventListener;
     }
 
     public int[] getBoard() {
@@ -132,25 +142,28 @@ implements KeyListener{
     public void detectCollision(){
         if((board[0] & board[1]) != 0){
             System.out.println("Collision detected!");
-            reset();
+            this.reset();
         } else if (board[1] != 0) {
-            obstacleCounter++;
+            this.plusOneEventListener.onPlusEvent(new PlusOneEvent(this));
         }
     }
 
     public void reset(){
-        obstacleCounter = 0;
+        sevenSegmentNonZeros = 0;
         tickEventCounter = 0;
         ResetEvent resetEvent = new ResetEvent(this);
-        resetEventListener.onResetEvent(resetEvent);
+        for (ResetEventListener listener : resetEventListeners) {
+            listener.onResetEvent(resetEvent);
+        }
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 's' -> {
-                gameThread.start();
-            }
+                synchronized (gameThread) {
+                    gameThread.notify();
+                }}
             case 'a' -> {
                 if(board[0] != 0b100){
                     board[0] <<= 1;

@@ -29,7 +29,7 @@ extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 BufferedImage image;
-                try {;
+                try {
                     image = ImageIO.read(new File("res\\backgroundAlpha.png"));
                     g.drawImage(image,0,0, this);
                 } catch (IOException ignore) {
@@ -47,10 +47,45 @@ extends JFrame {
         tableController.setBoard(this.board.getBoard());
         GameThread.getInstance().setAutoslalomTableController(tableController);
 
+        JPanel scorePanel = new JPanel();
+        scorePanel.setLayout(new GridLayout(1, 4));
+        {
+            SevenSegmentDigit[] digits = new SevenSegmentDigit[]{
+                    new SevenSegmentDigit(),
+                    new SevenSegmentDigit(),
+                    new SevenSegmentDigit()
+            };
+            this.board.setPlusOneEventListener(e -> digits[0].plusOne());
+            digits[0].setPlusOneEventListener(e -> digits[1].plusOne());
+            digits[1].setPlusOneEventListener(e -> digits[2].plusOne());
+            digits[2].setPlusOneEventListener(e -> {
+                this.board.reset();
+            });
+
+            this.board.addResetEventListener(e -> {
+                for (SevenSegmentDigit digit : digits) {
+                    digit.start();
+                }
+            });
+
+            JPanel gap = new JPanel();
+            gap.setSize(0,124);
+            gap.setOpaque(false);
+
+            scorePanel.setBounds(140,50,450,150);
+            scorePanel.setOpaque(false);
+            scorePanel.add(digits[2]);
+            scorePanel.add(gap);
+            scorePanel.add(digits[1]);
+            scorePanel.add(digits[0]);
+
+        }
+
         JLayeredPane layeredPane = this.getLayeredPane();
         layeredPane.setSize(this.getSize());
         layeredPane.add(tableView, JLayeredPane.DEFAULT_LAYER);
         layeredPane.add(imgPanel, JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(scorePanel, JLayeredPane.MODAL_LAYER);
 
     }
 }
