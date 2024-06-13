@@ -9,7 +9,7 @@ extends Thread{
 
     private final List<TickEventListener> tickEventListeners;
     private boolean state;
-    private final float difficulty = 2.5F;
+    private final float difficulty = 0.25F;
     private final int defaultSpeed;
     private int difficultyMultiplier;
     private AutoslalomTableController autoslalomTableController;
@@ -41,6 +41,7 @@ extends Thread{
                     synchronized (this) { this.wait(); }
                     this.difficultyMultiplier = 0;
                 }
+                System.out.println((int)(this.defaultSpeed - (this.difficulty * this.difficultyMultiplier)));
                 Thread.sleep((int)(this.defaultSpeed - (this.difficulty * this.difficultyMultiplier)));
                 tick();
             } catch (InterruptedException e) {

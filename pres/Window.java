@@ -66,11 +66,11 @@ extends JFrame {
                 }
             });
 
-            this.board.setPlusOneEventListener(e -> digits[0].plusOne());
-            digits[0].setPlusOneEventListener(e -> {
-                digits[1].plusOne();
+            this.board.setPlusOneEventListener(e -> {
+                digits[0].plusOne();
                 GameThread.getInstance().increaseDifficulty();
             });
+            digits[0].setPlusOneEventListener(e -> digits[1].plusOne());
             digits[1].setPlusOneEventListener(e -> digits[2].plusOne());
             digits[2].setPlusOneEventListener(e -> this.board.reset());
 
