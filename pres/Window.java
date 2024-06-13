@@ -55,16 +55,28 @@ extends JFrame {
                     new SevenSegmentDigit(),
                     new SevenSegmentDigit()
             };
-            this.board.setPlusOneEventListener(e -> digits[0].plusOne());
-            digits[0].setPlusOneEventListener(e -> digits[1].plusOne());
-            digits[1].setPlusOneEventListener(e -> digits[2].plusOne());
-            digits[2].setPlusOneEventListener(e -> {
-                this.board.reset();
+
+            for (SevenSegmentDigit digit : digits) {
+                digit.setMinusOneGapListener(e -> this.board.minusOneGap());
+            }
+
+            this.board.addStartEventListener(e -> {
+                for (SevenSegmentDigit digit : digits) {
+                    digit.start();
+                }
             });
+
+            this.board.setPlusOneEventListener(e -> digits[0].plusOne());
+            digits[0].setPlusOneEventListener(e -> {
+                digits[1].plusOne();
+                GameThread.getInstance().increaseDifficulty();
+            });
+            digits[1].setPlusOneEventListener(e -> digits[2].plusOne());
+            digits[2].setPlusOneEventListener(e -> this.board.reset());
 
             this.board.addResetEventListener(e -> {
                 for (SevenSegmentDigit digit : digits) {
-                    digit.start();
+                    digit.reset();
                 }
             });
 

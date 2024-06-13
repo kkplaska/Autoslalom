@@ -9,10 +9,9 @@ extends JPanel{
 
     private final int width;
     private final int height;
-    private StartEventListener startEventListener;
     private PlusOneEventListener plusOneEventListener;
+    private MinusOneGapListener minusOneGapListener;
 
-    private int score;
     private int digit;
     private boolean visible;
 
@@ -99,14 +98,15 @@ extends JPanel{
     }
 
     public void start(){
-        this.visible = false;
         this.digit = 0;
     }
 
+    public void reset(){
+        this.visible = false;
+    }
+
     public void plusOne(){
-        if(!visible){
-            GameThread.getInstance().getBoard().sevenSegmentNonZerosPlus();
-        }
+        if(!visible) minusOneGapListener.onMinusOneGap(new MinusOneGapEvent(this));
         this.visible = true;
         this.digit++;
         if(this.digit == 10){
@@ -119,5 +119,9 @@ extends JPanel{
 
     public void setPlusOneEventListener(PlusOneEventListener plusOneEventListener) {
         this.plusOneEventListener = plusOneEventListener;
+    }
+
+    public void setMinusOneGapListener(MinusOneGapListener minusOneGapListener) {
+        this.minusOneGapListener = minusOneGapListener;
     }
 }

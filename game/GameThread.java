@@ -9,8 +9,9 @@ extends Thread{
 
     private final List<TickEventListener> tickEventListeners;
     private boolean state;
-    private Board board;
-    private int difficulty = 0;
+    private final float difficulty = 2.5F;
+    private final int defaultSpeed;
+    private int difficultyMultiplier;
     private AutoslalomTableController autoslalomTableController;
 
     // SINGLETON
@@ -25,6 +26,8 @@ extends Thread{
     private GameThread(){
         this.tickEventListeners = new ArrayList<TickEventListener>();
         this.state = true;
+        this.defaultSpeed = 600;
+        this.difficultyMultiplier = 0;
         this.start();
     }
 
@@ -36,8 +39,9 @@ extends Thread{
                 if(state){
                     state = false;
                     synchronized (this) { this.wait(); }
+                    this.difficultyMultiplier = 0;
                 }
-                Thread.sleep(500 - (100L * difficulty));
+                Thread.sleep((int)(this.defaultSpeed - (this.difficulty * this.difficultyMultiplier)));
                 tick();
             } catch (InterruptedException e) {
                 System.out.println("KONIEC GRY");
@@ -56,15 +60,11 @@ extends Thread{
                     }
                 }
         );
-        this.board = board;
     }
 
-    public Board getBoard() {
-        return board;
-    }
-
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
+    public void increaseDifficulty() {
+        ++this.difficultyMultiplier;
+        System.out.println(this.difficultyMultiplier);
     }
 
     public void setAutoslalomTableController(AutoslalomTableController autoslalomTableController) {
@@ -80,6 +80,10 @@ extends Thread{
         for(TickEventListener listener : tickEventListeners){
             listener.onTickEvent(tickEvent);
         }
+        updateCells();
+    }
+
+    public void updateCells(){
         autoslalomTableController.updateCells();
     }
 }

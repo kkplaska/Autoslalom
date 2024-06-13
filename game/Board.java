@@ -18,10 +18,10 @@ implements KeyListener{
     // 0b000 = 0
 
     private final int[] board;
-    private int sevenSegmentNonZeros;
+    private int gaps;
     private int tickEventCounter;
-    private ResetEventListener resetEventListener;
     private final List<ResetEventListener> resetEventListeners;
+    private final List<StartEventListener> startEventListeners;
     private PlusOneEventListener plusOneEventListener;
     private final GameThread gameThread;
 
@@ -31,6 +31,7 @@ implements KeyListener{
         board[0] = 0b010; // Pozycja początkowa samochodu
 
         this.resetEventListeners = new ArrayList<ResetEventListener>();
+        this.startEventListeners = new ArrayList<StartEventListener>();
 
         this.gameThread = GameThread.getInstance();
         gameThread.setBoard(this);
@@ -40,22 +41,21 @@ implements KeyListener{
         gameThread.addTickEventListener(
                 e -> {
                     detectCollision();
-                    System.out.println(tickEventCounter);
-                    if(sevenSegmentNonZeros == 0) {
+                    if(gaps == 0) {
                         if(tickEventCounter % 5 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
                         } else {
                             generateEmptyRow();
                         }
-                    } else if(sevenSegmentNonZeros == 1) {
+                    } else if(gaps == 1) {
                         if(tickEventCounter % 4 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
                         } else {
                             generateEmptyRow();
                         }
-                    } else if (sevenSegmentNonZeros == 2) {
+                    } else if (gaps == 2) {
                         if(tickEventCounter % 3 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
@@ -70,7 +70,6 @@ implements KeyListener{
                             generateEmptyRow();
                         }
                     }
-                    consoleTrack();
                     tickEventCounter++;
                 }
         );
@@ -123,16 +122,20 @@ implements KeyListener{
         }
     }
 
-    public void sevenSegmentNonZerosPlus (){
-        this.sevenSegmentNonZeros++;
+    public void minusOneGap (){
+        this.gaps++;
     }
 
-    public void addResetEventListener(ResetEventListener resetEventListener) {
-        this.resetEventListeners.add(resetEventListener);
+    public void addStartEventListener (StartEventListener listener){
+        startEventListeners.add(listener);
     }
 
-    public void setPlusOneEventListener(PlusOneEventListener plusOneEventListener) {
-        this.plusOneEventListener = plusOneEventListener;
+    public void addResetEventListener(ResetEventListener listener) {
+        this.resetEventListeners.add(listener);
+    }
+
+    public void setPlusOneEventListener(PlusOneEventListener listener) {
+        this.plusOneEventListener = listener;
     }
 
     public int[] getBoard() {
@@ -148,8 +151,19 @@ implements KeyListener{
         }
     }
 
+    public void start(){
+        board[0] = 2;
+        for (int i = 1; i < board.length; i++) {
+            board[i] = 0;
+        }
+        StartEvent startEvent = new StartEvent(this);
+        for(StartEventListener listener : startEventListeners){
+            listener.onStartEvent(startEvent);
+        }
+    }
+
     public void reset(){
-        sevenSegmentNonZeros = 0;
+        gaps = 0;
         tickEventCounter = 0;
         ResetEvent resetEvent = new ResetEvent(this);
         for (ResetEventListener listener : resetEventListeners) {
@@ -161,17 +175,20 @@ implements KeyListener{
     public void keyTyped(KeyEvent e) {
         switch (e.getKeyChar()) {
             case 's' -> {
+                start();
                 synchronized (gameThread) {
                     gameThread.notify();
                 }}
             case 'a' -> {
                 if(board[0] != 0b100){
                     board[0] <<= 1;
+                    gameThread.updateCells();
                 }
             }
             case 'd' -> {
                 if(board[0] != 0b001){
                     board[0] >>= 1;
+                    gameThread.updateCells();
                 }
             }
         }
