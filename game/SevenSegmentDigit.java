@@ -9,6 +9,7 @@ extends JPanel{
 
     private final int width;
     private final int height;
+    private boolean isFirst;
     private PlusOneEventListener plusOneEventListener;
     private MinusOneGapListener minusOneGapListener;
 
@@ -31,12 +32,17 @@ extends JPanel{
     };
 
     public SevenSegmentDigit() {
+        this(false);
+    }
+
+    public SevenSegmentDigit(boolean isFirst) {
         this.digit = 0;
         this.visible = false;
         this.width = 70; // 70px x 124px
         this.height = 124;
         this.setOpaque(false);
         this.setSize(width, height);
+        this.isFirst = isFirst;
     }
 
 
@@ -99,6 +105,9 @@ extends JPanel{
 
     public void start(){
         this.digit = 0;
+        if(isFirst) {
+            this.visible = true;
+        }
     }
 
     public void reset(){
@@ -106,7 +115,10 @@ extends JPanel{
     }
 
     public void plusOne(){
-        if(!visible) minusOneGapListener.onMinusOneGap(new MinusOneGapEvent(this));
+        if(!visible || isFirst) {
+            minusOneGapListener.onMinusOneGap(new MinusOneGapEvent(this));
+            this.isFirst = false;
+        }
         this.visible = true;
         this.digit++;
         if(this.digit == 10){

@@ -18,6 +18,8 @@ implements KeyListener{
     // 0b000 = 0
 
     private final int[] board;
+    private int roadsides;
+    private int roadsideCounter;
     private int gaps;
     private int tickEventCounter;
     private final List<ResetEventListener> resetEventListeners;
@@ -29,73 +31,52 @@ implements KeyListener{
     public Board() {
         this.board = new int[7];
         board[0] = 0b010; // Pozycja początkowa samochodu
+        this.roadsides = 0;
+        this.roadsideCounter = 0;
 
-        this.resetEventListeners = new ArrayList<ResetEventListener>();
-        this.startEventListeners = new ArrayList<StartEventListener>();
+        this.resetEventListeners = new ArrayList<>();
+        this.startEventListeners = new ArrayList<>();
 
         this.gameThread = GameThread.getInstance();
-        gameThread.setBoard(this);
-        tickEventCounter = 0;
+        this.gameThread.reset(this);
+        this.tickEventCounter = 0;
 
-
-        gameThread.addTickEventListener(
+        this.gameThread.addTickEventListener(
                 e -> {
                     detectCollision();
+                    if(roadsideCounter % 3 == 0) {
+                        roadsides |= 0b1000000;
+                        roadsideCounter = 0;
+                    }
+                    roadsides >>= 1;
                     if(gaps == 0) {
-                        if(tickEventCounter % 5 == 0) {
-                            generateObstacleRow();
-                            tickEventCounter = 0;
-                        } else {
-                            generateEmptyRow();
-                        }
-                    } else if(gaps == 1) {
                         if(tickEventCounter % 4 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
                         } else {
                             generateEmptyRow();
                         }
-                    } else if (gaps == 2) {
+                    } else if(gaps == 1) {
                         if(tickEventCounter % 3 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
                         } else {
                             generateEmptyRow();
                         }
-                    } else { // sevenSegmentNonZeros == 3
+                    } else if (gaps == 2) {
                         if(tickEventCounter % 2 == 0) {
                             generateObstacleRow();
                             tickEventCounter = 0;
                         } else {
                             generateEmptyRow();
                         }
+                    } else { // gaps == 3
+                        generateObstacleRow();
                     }
                     tickEventCounter++;
+                    roadsideCounter++;
                 }
         );
-    }
-
-    private void consoleTrack(){
-        StringBuilder sb = new StringBuilder();
-        for (int i = 6; i > 0; i--) {
-            switch (board[i]) {
-                case 0b110 -> sb.append("|== |");
-                case 0b101 -> sb.append("|= =|");
-                case 0b100 -> sb.append("|=  |");
-                case 0b011 -> sb.append("| ==|");
-                case 0b010 -> sb.append("| = |");
-                case 0b001 -> sb.append("|  =|");
-                case 0b000 -> sb.append("|   |");
-            }
-            sb.append("\n");
-        }
-        switch (board[0]){
-            case 0b100 -> sb.append("|A  |");
-            case 0b010 -> sb.append("| A |");
-            case 0b001 -> sb.append("|  A|");
-        }
-        sb.append("\n");
-        System.out.println(sb);
     }
 
     public void generateEmptyRow(){
@@ -127,7 +108,7 @@ implements KeyListener{
     }
 
     public void addStartEventListener (StartEventListener listener){
-        startEventListeners.add(listener);
+        this.startEventListeners.add(listener);
     }
 
     public void addResetEventListener(ResetEventListener listener) {
@@ -142,6 +123,10 @@ implements KeyListener{
         return board;
     }
 
+    public int getRoadsides() {
+        return roadsides;
+    }
+
     public void detectCollision(){
         if((board[0] & board[1]) != 0){
             System.out.println("Collision detected!");
@@ -152,6 +137,9 @@ implements KeyListener{
     }
 
     public void start(){
+        System.out.println("START!");
+        roadsides = 0b0100100;
+        roadsideCounter = 1;
         board[0] = 2;
         for (int i = 1; i < board.length; i++) {
             board[i] = 0;

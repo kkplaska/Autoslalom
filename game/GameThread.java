@@ -24,7 +24,7 @@ extends Thread{
     }
 
     private GameThread(){
-        this.tickEventListeners = new ArrayList<TickEventListener>();
+        this.tickEventListeners = new ArrayList<>();
         this.state = true;
         this.defaultSpeed = 600;
         this.difficultyMultiplier = 0;
@@ -41,7 +41,6 @@ extends Thread{
                     synchronized (this) { this.wait(); }
                     this.difficultyMultiplier = 0;
                 }
-                System.out.println((int)(this.defaultSpeed - (this.difficulty * this.difficultyMultiplier)));
                 Thread.sleep((int)(this.defaultSpeed - (this.difficulty * this.difficultyMultiplier)));
                 tick();
             } catch (InterruptedException e) {
@@ -51,21 +50,17 @@ extends Thread{
         }
     }
 
-    public void setBoard(Board board) {
+    public void reset(Board board) {
         board.addResetEventListener(
-                new ResetEventListener(){
-                    @Override
-                    public void onResetEvent(ResetEvent e) {
-                        System.out.println("RESET!");
-                        interrupt();
-                    }
-                }
+            e -> {
+                System.out.println("RESET!");
+                interrupt();
+            }
         );
     }
 
     public void increaseDifficulty() {
         ++this.difficultyMultiplier;
-        System.out.println(this.difficultyMultiplier);
     }
 
     public void setAutoslalomTableController(AutoslalomTableController autoslalomTableController) {
