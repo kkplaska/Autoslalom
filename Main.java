@@ -1,5 +1,4 @@
 import javax.swing.*;
-import game.*;
 import pres.*;
 
 public class Main {

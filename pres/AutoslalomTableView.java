@@ -39,20 +39,15 @@ extends JPanel {
         this.imageCellRenderer = new DefaultTableCellRenderer(){
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 File file = (File) value;
                 try {
                     BufferedImage image = ImageIO.read(file);
-                    label.setText("");
-                    label.setIcon(new ImageIcon(image));
+                    this.setText("");
+                    this.setIcon(new ImageIcon(image));
                     table.setRowHeight(row, image.getHeight());
                 } catch (IOException ignore) {}
-                return label;
+                return this;
             }
         };
-    }
-
-    public JTable getTable() {
-        return table;
     }
 }

@@ -44,14 +44,14 @@ extends JFrame {
         AutoslalomTableModel tableModel = new AutoslalomTableModel();
         AutoslalomTableView tableView = new AutoslalomTableView(tableModel);
         AutoslalomTableController tableController = new AutoslalomTableController(tableModel, tableView);
-        tableController.setBoard(this.board.getBoard());
+        tableController.setBoard(this.board);
         GameThread.getInstance().setAutoslalomTableController(tableController);
 
         JPanel scorePanel = new JPanel();
         scorePanel.setLayout(new GridLayout(1, 4));
         {
             SevenSegmentDigit[] digits = new SevenSegmentDigit[]{
-                    new SevenSegmentDigit(),
+                    new SevenSegmentDigit(true),
                     new SevenSegmentDigit(),
                     new SevenSegmentDigit()
             };
