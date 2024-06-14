@@ -476,7 +476,8 @@ class SevenSegmentDigit
 
     private final int width;
     private final int height;
-    private boolean isFirst;
+    private final boolean isFirst;
+    private boolean isFirstGap;
     private PlusOneEventListener plusOneEventListener;
     private MinusOneGapListener minusOneGapListener;
 
@@ -574,6 +575,7 @@ class SevenSegmentDigit
         this.digit = 0;
         if(isFirst) {
             this.visible = true;
+            this.isFirstGap = true;
         }
     }
 
@@ -582,9 +584,9 @@ class SevenSegmentDigit
     }
 
     public void plusOne(){
-        if(!visible || isFirst) {
+        if(!visible || isFirstGap) {
             minusOneGapListener.onMinusOneGap(new MinusOneGapEvent(this));
-            this.isFirst = false;
+            this.isFirstGap = false;
         }
         this.visible = true;
         this.digit++;
