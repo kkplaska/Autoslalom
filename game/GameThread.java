@@ -9,7 +9,7 @@ extends Thread{
 
     private final List<TickEventListener> tickEventListeners;
     private boolean state;
-    private final float difficulty = 0.25F;
+    private final float difficulty;
     private final int defaultSpeed;
     private int difficultyMultiplier;
     private AutoslalomTableController autoslalomTableController;
@@ -26,6 +26,7 @@ extends Thread{
     private GameThread(){
         this.tickEventListeners = new ArrayList<>();
         this.state = true;
+        this.difficulty = 0.5F;
         this.defaultSpeed = 600;
         this.difficultyMultiplier = 0;
         this.start();

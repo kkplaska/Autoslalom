@@ -1,4 +1,9 @@
-package game;
+package pres;
+
+import game.MinusOneGapEvent;
+import game.MinusOneGapListener;
+import game.PlusOneEvent;
+import game.PlusOneEventListener;
 
 import javax.swing.*;
 import java.awt.*;
