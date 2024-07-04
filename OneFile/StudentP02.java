@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
 
-public class S30213P02 {
+public class StudentP02 {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Window::new);
     }
