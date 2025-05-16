@@ -162,22 +162,26 @@ implements KeyListener{
     @Override
     public void keyTyped(KeyEvent e) {
         switch (e.getKeyChar()) {
-            case 's' -> {
+            case 's':{
                 start();
                 synchronized (gameThread) {
                     gameThread.notify();
-                }}
-            case 'a' -> {
+                }
+                break;
+            }
+            case 'a': {
                 if(board[0] != 0b100){
                     board[0] <<= 1;
                     gameThread.updateCells();
                 }
+                break;
             }
-            case 'd' -> {
+            case 'd': {
                 if(board[0] != 0b001){
                     board[0] >>= 1;
                     gameThread.updateCells();
                 }
+                break;
             }
         }
     }

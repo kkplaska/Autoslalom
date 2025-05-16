@@ -16,7 +16,8 @@ extends JFrame {
         this.setTitle("Autoslalom");
         this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(1296, 844);
+//        this.setSize(1296, 844);
+        this.setSize(1286, 832);
 //        this.setSize(1280, 805);
         this.setResizable(false);
         this.board = new Board();
