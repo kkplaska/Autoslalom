@@ -43,10 +43,10 @@ Sterowanie odbywa się przy pomocy klawiszy:
 
 ## 📁 Struktura katalogów
 
-- `Main.java` – główny plik zawierający logikę gry.
+- `Main.java` – główny plik zawierający uruchamiający pozostałe.
 - `game/` – katalog zawierający klasy związane z mechaniką gry.
-- `pres/` – zasoby graficzne i prezentacyjne.
-- `res/` – dodatkowe zasoby, takie jak dźwięki czy konfiguracje.
+- `pres/` – katalog zawierający klasy związane z zasobami graficznymi i prezentacyjnymi.
+- `res/` – zasoby graficzne.
 
 ## 📄 Licencja
 
