@@ -10,6 +10,14 @@
 - **Punktacja**: Za każdy bezkolizyjnie przejechany rząd przeszkód gracz zdobywa punkty. Im dłużej utrzyma się na torze, tym wyższy wynik zdobędzie.
 - **Poziom trudności**: Wraz z postępem gry zwiększa się prędkość poruszania się przeszkód, co wymaga szybszych reakcji od gracza.
 
+
+## 🎮 Obsługa gry i sterowanie:
+Gra się uruchamia po wciśnięciu klawisza `s` na klawiaturze.
+
+Sterowanie odbywa się przy pomocy klawiszy:
+- `a` (zmiana pasa na najbliższy po lewej),
+- `d` (zmiana pasa na najbliższy po prawej).
+
 ## 🛠️ Wymagania systemowe
 
 - **Java Development Kit (JDK)**: Wersja 8 lub nowsza
